@@ -1,0 +1,29 @@
+service: bgc-desafio
+
+frameworkVersion: '3'
+
+provider:
+  name: aws
+  runtime: nodejs12.x
+  region: sa-east-1
+  iamRoleStatements:
+    - Effect: 'Allow'
+      Action:
+        - 's3:PutObject'
+        - 's3:GetObject'
+      Resource: 'arn:aws:s3:::example-bucket/*'
+
+plugins:
+  - serverless-plugin-chrome
+
+functions:
+  getProducts:
+    handler: handler.getProducts
+    events:
+      - http:
+          path: getProducts
+          method: get
+    environment:
+      HEADLESS: true
+      TIMEOUT: 60000
+    memorySize: 512
