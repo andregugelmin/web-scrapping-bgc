@@ -13,9 +13,6 @@ provider:
         - 's3:GetObject'
       Resource: 'arn:aws:s3:::example-bucket/*'
 
-plugins:
-  - serverless-plugin-chrome
-
 functions:
   getProducts:
     handler: handler.getProducts
