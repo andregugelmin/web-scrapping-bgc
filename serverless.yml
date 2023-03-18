@@ -18,8 +18,9 @@ functions:
     handler: handler.getProducts
     events:
       - http:
-          path: getProducts
+          path: /
           method: get
+          cors: true
     environment:
       HEADLESS: true
       TIMEOUT: 60000
