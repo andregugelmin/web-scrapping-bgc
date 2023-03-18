@@ -1,22 +1,25 @@
 'use strict';
 const puppeteer = require('puppeteer');
+const { getChrome } = require('./chrome-script');
 
 module.exports.getProducts = async (event, context, callback) => {
-	const amazonItens = await getAmazonItens();
+	const { url } = event.queryStringParameters;
+	const amazonItens = await getAmazonItens(url);
 	return {
 		statusCode: 200,
 		body: JSON.stringify({ itens: amazonItens }),
 	};
 };
 
-async function getAmazonItens() {
-	const browser = await puppeteer.launch({
-		headless: false,
+async function getAmazonItens(url) {
+	const chrome = await getChrome();
+	const browser = await puppeteer.connect({
+		browserWSEndpoint: chrome.endpoint,
 	});
-
+	console.log(url);
 	const page = await browser.newPage();
+	await page.goto(`https://www.amazon.com.br/gp/bestsellers/${url}`, { waitUntil: 'networkidle0' });
 	await page.setViewport({ width: 1920, height: 1080 });
-	await page.goto('https://www.amazon.com.br/gp/bestsellers/home/');
 
 	const productsArray = [];
 	for (let i = 0; i < 3; i++) {
@@ -34,7 +37,9 @@ async function getAmazonItens() {
 			productObj.link = link.trim();
 			productObj.price = price.trim();
 			productsArray.push(productObj);
-		} catch (error) {}
+		} catch (error) {
+			console.log(error);
+		}
 	}
 
 	await browser.close();

@@ -11,14 +11,22 @@ provider:
       Action:
         - 's3:PutObject'
         - 's3:GetObject'
-      Resource: 'arn:aws:s3:::example-bucket/*'
+      Resource: 'arn:aws:s3:::puppeteer-bucket/*'
+
+plugins:
+  - serverless-plugin-chrome
+  - serverless-offline
+
+package:
+  exclude:
+    - node_modules/puppeteer/.local-chromium/**
 
 functions:
   getProducts:
     handler: handler.getProducts
     events:
       - http:
-          path: /
+          path: getProducts
           method: get
           cors: true
     environment:
