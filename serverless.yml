@@ -6,16 +6,13 @@ provider:
   name: aws
   runtime: nodejs12.x
   region: sa-east-1
+  profile: bgcUser
   iamRoleStatements:
     - Effect: 'Allow'
       Action:
         - 's3:PutObject'
         - 's3:GetObject'
       Resource: 'arn:aws:s3:::puppeteer-bucket/*'
-
-plugins:
-  - serverless-plugin-chrome
-  - serverless-offline
 
 package:
   exclude:
@@ -26,10 +23,10 @@ functions:
     handler: handler.getProducts
     events:
       - http:
-          path: getProducts
+          path: products
           method: get
-          cors: true
     environment:
       HEADLESS: true
       TIMEOUT: 60000
     memorySize: 512
+    timeout: 30

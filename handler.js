@@ -1,25 +1,18 @@
 'use strict';
-const puppeteer = require('puppeteer');
-const { getChrome } = require('./chrome-script');
+const chromium = require('chrome-aws-lambda');
 
-module.exports.getProducts = async (event, context, callback) => {
+module.exports.getProducts = async (event) => {
 	const { url } = event.queryStringParameters;
-	const amazonItens = await getAmazonItens(url);
-	return {
-		statusCode: 200,
-		body: JSON.stringify({ itens: amazonItens }),
-	};
-};
-
-async function getAmazonItens(url) {
-	const chrome = await getChrome();
-	const browser = await puppeteer.connect({
-		browserWSEndpoint: chrome.endpoint,
+	const browser = await chromium.puppeteer.launch({
+		args: chromium.args,
+		defaultViewport: chromium.defaultViewport,
+		executablePath: await chromium.executablePath,
+		headless: chromium.headless,
+		ignoreHTTPSErrors: true,
 	});
-	console.log(url);
+
 	const page = await browser.newPage();
 	await page.goto(`https://www.amazon.com.br/gp/bestsellers/${url}`, { waitUntil: 'networkidle0' });
-	await page.setViewport({ width: 1920, height: 1080 });
 
 	const productsArray = [];
 	for (let i = 0; i < 3; i++) {
@@ -43,5 +36,14 @@ async function getAmazonItens(url) {
 	}
 
 	await browser.close();
-	return productsArray;
-}
+
+	return {
+		statusCode: 200,
+		headers: {
+			'Content-Type': 'application/json',
+			'Access-Control-Allow-Methods': '*',
+			'Access-Control-Allow-Origin': '*',
+		},
+		body: JSON.stringify({ itens: productsArray }),
+	};
+};
