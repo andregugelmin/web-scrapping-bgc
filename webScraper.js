@@ -1,8 +1,7 @@
 'use strict';
 const chromium = require('chrome-aws-lambda');
 
-module.exports.getProducts = async (event) => {
-	const { url } = event.queryStringParameters;
+module.exports.webScraper = async ({ category }) => {
 	const browser = await chromium.puppeteer.launch({
 		args: chromium.args,
 		defaultViewport: chromium.defaultViewport,
@@ -12,9 +11,9 @@ module.exports.getProducts = async (event) => {
 	});
 
 	const page = await browser.newPage();
-	await page.goto(`https://www.amazon.com.br/gp/bestsellers/${url}`, { waitUntil: 'networkidle0' });
+	await page.goto(`https://www.amazon.com.br/gp/bestsellers/${category}`, { waitUntil: 'networkidle0' });
 
-	const productsArray = [];
+	const products = [];
 	for (let i = 0; i < 3; i++) {
 		const productObj = {};
 		try {
@@ -29,7 +28,7 @@ module.exports.getProducts = async (event) => {
 			productObj.image = image.trim();
 			productObj.link = link.trim();
 			productObj.price = price.trim();
-			productsArray.push(productObj);
+			products.push(productObj);
 		} catch (error) {
 			console.log(error);
 		}
@@ -37,13 +36,5 @@ module.exports.getProducts = async (event) => {
 
 	await browser.close();
 
-	return {
-		statusCode: 200,
-		headers: {
-			'Content-Type': 'application/json',
-			'Access-Control-Allow-Methods': '*',
-			'Access-Control-Allow-Origin': '*',
-		},
-		body: JSON.stringify({ itens: productsArray }),
-	};
+	return products;
 };

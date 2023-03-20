@@ -6,27 +6,49 @@ provider:
   name: aws
   runtime: nodejs12.x
   region: sa-east-1
-  profile: bgcUser
   iamRoleStatements:
     - Effect: 'Allow'
-      Action:
-        - 's3:PutObject'
-        - 's3:GetObject'
-      Resource: 'arn:aws:s3:::puppeteer-bucket/*'
+      Action: dynamodb:*
+      Resource: arn:aws:dynamodb:sa-east-1:{userId}:table/Bestsellers
+    - Effect: 'Allow'
+      Action: states:*
+      Resource: arn:aws:states:sa-east-1:{userId}:stateMachine:AmazonWebScraping
+plugins:
+  - serverless-step-functions
+  - serverless-offline
 
 package:
   exclude:
     - node_modules/puppeteer/.local-chromium/**
 
 functions:
-  getProducts:
-    handler: handler.getProducts
-    events:
-      - http:
-          path: products
-          method: get
+  webScraper:
+    handler: webScraper.webScraper
     environment:
       HEADLESS: true
       TIMEOUT: 60000
     memorySize: 512
     timeout: 30
+
+  fetchProducts:
+    handler: fetchProducts.fetchProducts
+    timeout: 30
+
+stepFunctions:
+  stateMachines:
+    AmazonWebScraping:
+      name: AmazonWebScraping
+      definition:
+        StartAt: webScraper
+        States:
+          webScraper:
+            Type: Task
+            Resource:
+              Fn::GetAtt: [webScraper, Arn]
+            ResultPath: '$.products'
+            Next: fetchProducts
+          fetchProducts:
+            Type: Task
+            Resource:
+              Fn::GetAtt: [fetchProducts, Arn]
+            End: true
