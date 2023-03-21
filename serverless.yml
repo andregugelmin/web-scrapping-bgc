@@ -9,10 +9,10 @@ provider:
   iamRoleStatements:
     - Effect: 'Allow'
       Action: dynamodb:*
-      Resource: arn:aws:dynamodb:sa-east-1:{userId}:table/Bestsellers
+      Resource: arn:aws:dynamodb:sa-east-1:663237945889:table/Bestsellers
     - Effect: 'Allow'
       Action: states:*
-      Resource: arn:aws:states:sa-east-1:{userId}:stateMachine:AmazonWebScraping
+      Resource: arn:aws:states:sa-east-1:663237945889:execution:AmazonWebScraping
 plugins:
   - serverless-step-functions
   - serverless-offline
@@ -29,9 +29,8 @@ functions:
       TIMEOUT: 60000
     memorySize: 512
     timeout: 30
-
-  fetchProducts:
-    handler: fetchProducts.fetchProducts
+  createProductDynamo:
+    handler: createProductDynamo.createProductDynamo
     timeout: 30
 
 stepFunctions:
@@ -46,9 +45,16 @@ stepFunctions:
             Resource:
               Fn::GetAtt: [webScraper, Arn]
             ResultPath: '$.products'
-            Next: fetchProducts
-          fetchProducts:
+            Next: createProductDynamo
+          createProductDynamo:
             Type: Task
             Resource:
-              Fn::GetAtt: [fetchProducts, Arn]
+              Fn::GetAtt: [createProductDynamo, Arn]
+            Catch:
+              - ErrorEquals: [CreateProductError]
+                Next: CreateProductError
+            End: true
+          CreateProductError:
+            Type: Pass
+            Result: 'Unable to create product on dynamoDB'
             End: true

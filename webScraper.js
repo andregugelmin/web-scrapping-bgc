@@ -26,7 +26,7 @@ module.exports.webScraper = async ({ category }) => {
 			const price = await page.$eval(`#p13n-asin-index-${i} .a-color-price span`, ({ textContent }) => textContent);
 			productObj.title = title.trim();
 			productObj.image = image.trim();
-			productObj.link = link.trim();
+			productObj.productLink = link.trim();
 			productObj.price = price.trim();
 			products.push(productObj);
 		} catch (error) {
