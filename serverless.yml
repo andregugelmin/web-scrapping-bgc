@@ -7,12 +7,12 @@ provider:
   runtime: nodejs12.x
   region: sa-east-1
   iamRoleStatements:
-    - Effect: 'Allow'
-      Action: dynamodb:*
-      Resource: arn:aws:dynamodb:sa-east-1:663237945889:table/Bestsellers
-    - Effect: 'Allow'
-      Action: states:*
-      Resource: arn:aws:states:sa-east-1:663237945889:execution:AmazonWebScraping
+    - Effect: Allow
+      Action:
+        - dynamodb:*
+        - states:*
+      Resource: '*'
+
 plugins:
   - serverless-step-functions
   - serverless-offline
@@ -31,7 +31,17 @@ functions:
     timeout: 30
   createProductDynamo:
     handler: createProductDynamo.createProductDynamo
-    timeout: 30
+    timeout: 10
+    memorySize: 128
+  getProducts:
+    handler: getProducts.getProducts
+    timeout: 10
+    memorySize: 128
+    events:
+      - http:
+          path: getProducts/{category}
+          method: GET
+          cors: true
 
 stepFunctions:
   stateMachines:
@@ -58,3 +68,26 @@ stepFunctions:
             Type: Pass
             Result: 'Unable to create product on dynamoDB'
             End: true
+
+resources:
+  Resources:
+    BestsellersTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: 'Bestsellers'
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+          - AttributeName: category
+            AttributeType: S
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
+        BillingMode: PAY_PER_REQUEST
+        GlobalSecondaryIndexes:
+          - IndexName: category-index
+            KeySchema:
+              - AttributeName: category
+                KeyType: HASH
+            Projection:
+              ProjectionType: ALL

@@ -6,13 +6,13 @@ const { v4: uuidv4 } = require('uuid');
 
 module.exports.createProductDynamo = async ({ category, products }) => {
 	const date = new Date().toLocaleDateString();
-	const results = [];
+
 	for (let i in products) {
 		try {
 			const params = {
 				TableName: 'Bestsellers',
 				Item: {
-					productId: uuidv4(),
+					id: uuidv4(),
 					date: date,
 					category: category,
 					title: products[i].title,
@@ -22,13 +22,11 @@ module.exports.createProductDynamo = async ({ category, products }) => {
 				},
 			};
 
-			const result = await DocumentClient.put(params).promise();
-			results.push(result);
+			await DocumentClient.put(params).promise();
 		} catch (e) {
 			let CreateProductError = new Error(e);
 			CreateProductError.name = 'CreateProductError';
 			throw CreateProductError;
 		}
 	}
-	return results;
 };
