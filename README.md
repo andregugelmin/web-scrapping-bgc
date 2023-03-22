@@ -5,7 +5,7 @@
 
 ##  :clipboard: Description
 
-Serverless Project that uses Puppeteer as a web scraper to return the three bestseller products of any category from https://www.amazon.com.br/bestsellers
+Serverless Project that uses Puppeteer as a web scraper to return the three best seller products of any category from https://www.amazon.com.br/bestsellers
 
 
 
