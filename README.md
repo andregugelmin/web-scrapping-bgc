@@ -83,7 +83,7 @@ The {category} can be any category you find in [amazon bestsellers](https://www.
 }
 
 ```
-With this your step function will run Puppeteer for web scrapping and storage the itens in your database.
+With this your step function will run Puppeteer for web scrapping and will store the itens in your database.
 Then, you can use the following routes to access your DynamoDB:
 
 ```yml
