@@ -1,7 +1,7 @@
 'use strict';
 const chromium = require('chrome-aws-lambda');
 
-module.exports.webScraper = async ({ category }) => {
+async function webScrap(category) {
 	const browser = await chromium.puppeteer.launch({
 		args: chromium.args,
 		defaultViewport: chromium.defaultViewport,
@@ -37,4 +37,6 @@ module.exports.webScraper = async ({ category }) => {
 	await browser.close();
 
 	return products;
-};
+}
+
+module.exports = webScrap;

@@ -23,7 +23,7 @@ package:
 
 functions:
   webScraper:
-    handler: webScraper.webScraper
+    handler: webScrapLambda.webScraper
     environment:
       HEADLESS: true
       TIMEOUT: 60000
@@ -49,6 +49,15 @@ functions:
     events:
       - http:
           path: products
+          method: GET
+          cors: true
+  getByWebScrapping:
+    handler: getByWebScrapping.getByWebScrapping
+    timeout: 30
+    memorySize: 512
+    events:
+      - http:
+          path: webscrap/{category}
           method: GET
           cors: true
 
