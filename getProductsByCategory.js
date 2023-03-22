@@ -1,10 +1,7 @@
 'use strict';
-const AWS = require('aws-sdk');
-const DynamoDB = require('aws-sdk/clients/dynamodb');
-const DocumentClient = new DynamoDB.DocumentClient({ region: 'sa-east-1' });
 const Dynamo = require('DynamoDB');
 
-module.exports.getProducts = async (event) => {
+module.exports.getProductsByCategory = async (event) => {
 	if (!event.pathParameters.category) {
 		return {
 			statusCode: 500,
@@ -13,7 +10,7 @@ module.exports.getProducts = async (event) => {
 		};
 	}
 	const category = event.pathParameters.category;
-	console.log(category);
+
 	let response = {};
 	const headers = {
 		'Access-Control-Allow-Headers': 'Content-Type',
@@ -33,7 +30,7 @@ module.exports.getProducts = async (event) => {
 		response = {
 			statusCode: 500,
 			headers: headers,
-			body: JSON.stringify({ message: `${error.message}, ${category}` }),
+			body: JSON.stringify({ message: error.message }),
 		};
 	}
 

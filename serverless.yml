@@ -33,13 +33,22 @@ functions:
     handler: createProductDynamo.createProductDynamo
     timeout: 10
     memorySize: 128
-  getProducts:
-    handler: getProducts.getProducts
+  getProductsByCategory:
+    handler: getProductsByCategory.getProductsByCategory
     timeout: 10
     memorySize: 128
     events:
       - http:
-          path: getProducts/{category}
+          path: products/{category}
+          method: GET
+          cors: true
+  getAllProducts:
+    handler: getAllProducts.getAllProducts
+    timeout: 10
+    memorySize: 128
+    events:
+      - http:
+          path: products
           method: GET
           cors: true
 

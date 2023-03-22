@@ -3,7 +3,16 @@ const DynamoDB = require('aws-sdk/clients/dynamodb');
 const DocumentClient = new DynamoDB.DocumentClient({ region: 'sa-east-1' });
 
 const Dynamo = {
-	async write(data) {
+	scan: async () => {
+		const params = {
+			TableName: 'Bestsellers',
+		};
+		const data = await DocumentClient.scan(params).promise();
+		const items = data.Items;
+		return items;
+	},
+
+	write: async (data) => {
 		const params = {
 			TableName: 'Bestsellers',
 			Item: data,
